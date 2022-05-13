@@ -1,0 +1,24 @@
+<launch>
+
+    <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen" clear_params="true">
+        <rosparam file="$(find autocar)/param/costmap_common_params.yaml" command="load" ns="global_costmap" />
+        <rosparam file="$(find autocar)/param/costmap_common_params.yaml" command="load" ns="local_costmap" />
+        <rosparam file="$(find autocar)/param/local_costmap_params.yaml" command="load" />
+        <rosparam file="$(find autocar)/param/global_costmap_params.yaml" command="load" />
+        <rosparam file="$(find autocar)/param/base_local_planner_params.yaml" command="load" />>
+    </node>
+
+    <!-- 设置地图的配置文件 -->
+    <arg name="map" default="nav.yaml" />
+    <!-- 运行地图服务器，并且加载设置的地图-->
+    <node name="map_server" pkg="map_server" type="map_server" args="$(find slam_go)/map/$(arg map)"/>
+    <!-- 启动AMCL节点 -->
+    <include file="$(find autocar)/launch/car_amcl.launch" />
+
+    <!-- 运行rviz -->
+    <node pkg="rviz" type="rviz" name="rviz" args="-d $(find autocar)/config/carviz.rviz" />
+
+    <node pkg="joint_state_publisher" type="joint_state_publisher" name="joint_state_publisher" output="screen" />
+    <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher" output="screen" />
+
+</launch>
